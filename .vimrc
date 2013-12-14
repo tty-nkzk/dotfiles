@@ -25,7 +25,7 @@ set backspace=indent,eol,start
 set background=dark
 colorscheme molokai
 syntax on
-set guifontset=Ricty\ 12
+set guifont=Ricty\ 12
 
 set nowritebackup
 set nobackup
