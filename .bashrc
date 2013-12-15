@@ -115,4 +115,4 @@ fi
 
 export PATH=/home/zaki/bin:$PATH
 export DISPLAY=`echo $SSH_CLIENT | sed -e "s/ .*//"`:0.0
-export MANPATH=/user/local/man/ja:`manpath`
+export MANPATH=/usr/local/man/ja:/usr/share/man/ja:`manpath`
