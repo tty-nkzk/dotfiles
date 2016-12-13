@@ -1,0 +1,37 @@
+" commandモードでIMEオフ
+style! -name=commandline-ime chrome://* #liberator-commandline-command input {ime-mode: inactive;}
+
+" 入力欄に自動フォーカスしない
+set focuscontent
+
+" OS分岐
+" dをブラウザ標準の「タブを閉じる」にマッピング
+" vimperatorrcのリロード
+js<<EOM
+if(liberator.has("MacUnix")) {
+  liberator.execute("map d <M-w>");
+  liberator.execute("map ,r :source<Space>~/.vimperatorrc<CR>");
+} else {
+  liberator.execute("map d <C-w>");
+  liberator.execute("map ,r :source<Space>~/_vimperatorrc<CR>");
+}
+EOM
+
+
+" 移動幅
+noremap j 5j
+noremap k 5k
+" タブ移動
+nnoremap h <C-p>
+nnoremap l <C-n>
+" タブの位置変更
+map <C-l> :tabmove! +1<CR>
+map <C-h> :tabmove! -1<CR>
+" undo一覧から開く
+nnoremap U :undo<Space>
+let g:hint_tombloo_key = 'r'
+
+"読み込み完了メッセージ
+echo "vimperatorrc loaded."
+
+" [EOF]
