@@ -38,11 +38,11 @@ ln -s dotfiles/.vimrc .vimrc
 cd $HOME
 git clone https://github.com/slimm609/checksec.sh.git 
 cd local/bin
-ln -s checksec.sh/checksec checksec
+ln -s $HOME/checksec.sh/checksec checksec
 
 echo 'export PATH="/home/vagrant/local/bin:$PATH"' >> .bashrc
 
- 
+
 # ■disas-seccomp-filter
 cd $HOME
 git clone git://github.com/seccomp/libseccomp && cd libseccomp
