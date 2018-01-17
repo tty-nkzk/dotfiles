@@ -6,15 +6,16 @@ HOME=/home/vagrant
 
 cd $HOME
 pwd
+mkdir -p local/bin
 
 # ■common
-apt-get update
-apt-get install -y vim tmux gdb gdbserver socat binutils nasm python git autoconf libtool make || \
+sudo apt-get update && sudo apt upgrade -y
+sudo apt-get install -y vim tmux gdb gdbserver socat binutils nasm python git autoconf libtool make || \
         (echo "[!] apt-get install failed"; exit)
 
 # To use x86 binary at x86_64 enviroment.
-apt-get install -y gcc-multilib lib32z1 lib32ncurses5 lib32bz2-1.0
-apt-get install -y libc6:i386
+sudo apt-get install -y gcc-multilib lib32z1 lib32ncurses5 lib32bz2-1.0
+sudo apt-get install -y libc6:i386
 
 # ■peda
 cd $HOME
@@ -24,7 +25,7 @@ echo source $HOME/peda/peda.py >> $HOME/.gdbinit
 # ■rp++
 cd $HOME
 wget -q https://github.com/downloads/0vercl0k/rp/rp-lin-x64
-chmod +x rp-lin-x64 && mv rp-lin-x64 /usr/local/bin
+chmod +x rp-lin-x64 && mv rp-lin-x64 local/bin
 
 # ■dotfiles
 cd $HOME
@@ -36,11 +37,10 @@ ln -s dotfiles/.vimrc .vimrc
 # ■checksec
 cd $HOME
 git clone https://github.com/slimm609/checksec.sh.git 
-mkdir -p local/bin
 cd local/bin
 ln -s checksec.sh/checksec checksec
 
-# export PATH="/home/vagrant/local/bin:$PATH"
+echo 'export PATH="/home/vagrant/local/bin:$PATH"' >> .bashrc
 
  
 # ■disas-seccomp-filter
