@@ -13,3 +13,6 @@ apt-get install -y language-pack-ja
 dpkg-reconfigure tzdata
 dpkg-reconfigure locales
 update-locale LANG=$LANG
+
+echo "export LANG=ja_JP.utf-8" >> $HOME/.profile
+echo "[*] done. please 'source ~/.profile'"
