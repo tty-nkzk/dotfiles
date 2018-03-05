@@ -4,7 +4,7 @@
 cd $HOME
 
 sudo apt-get -y update
-sudo apt-get -y upgrade
+# sudo apt-get -y upgrade
 
 sudo apt-get -y install mercurial gettext libncurses5-dev libxmu-dev libgnomeui-dev
 
