@@ -1,0 +1,112 @@
+snippet     initial
+abbr        #!/usr/bin/env python3
+options     head
+    #!/usr/bin/env python3
+    # -*- coding: utf-8 -*- 
+    """ 
+    ${0}
+    
+    author tty-nkzk
+    """
+    
+    
+    
+    if __name__ == '__main__':
+        pass
+
+snippet     init_ac
+abbr        initial_arg_conf
+    #!/usr/bin/env python3
+    # -*- coding: utf-8 -*- 
+    """ 
+    ${0}
+    
+    author tty-nkzk
+    """
+    
+    import ConfigParser
+    import argparse
+    import sys
+
+    def get_conf(conf_file):
+        conf = ConfigParser.ConfigParser()
+        conf.read(conf_file)
+        return conf
+
+    def parse_args():
+        example = "Example: python %(prog)s 'et:2023743'"
+        parser = argparse.ArgumentParser(description='%(prog)s is a tool to get more information of Network signature in Lastline Appliance', epilog=example)
+        parser.add_argument('--version', action='version', version='%(prog)s ver 0.02')
+        parser.add_argument("identifier", help='identifier')
+        parser.add_argument('-e', '--execute', \
+                            action='store',\
+                            nargs='?',\
+                            const=None,\
+                            default="", \
+                            type=str,\
+                            choices=None, \
+                            help='execute the given file upon',\
+                            metavar ="file_to_run")
+        parser.add_argument('-c', '--command', \
+                            action='store_true',\
+                            default=False, \
+                            help='initialize a command shell')
+
+        args = parser.parse_args()
+        args_dict = vars(args)
+
+        return args_dict
+
+    def main(argv):
+        # arg part
+        args = parse_args()
+        # identifier = args["identifier"]
+
+        # config part
+        conf_file = "setup.ini"
+        section_name= "sig_mysql"
+
+        conf = get_conf(conf_file)
+
+
+    if __name__ == '__main__':
+        sys.exit(main(sys.argv))
+
+snippet     init_c
+abbr        initial_conf
+options     indent
+    import ConfigParser
+
+    def get_conf(conf_file):
+        conf = ConfigParser.ConfigParser()
+        conf.read(conf_file)
+        return conf
+
+snippet     init_a
+abbr        initial_arg
+    import argparse
+
+    def parse_args():
+        example = "Example: python %(prog)s 'et:2023743'"
+        parser = argparse.ArgumentParser(description='%(prog)s is a tool to get more information of Network signature in Lastline Appliance', epilog=example)
+        parser.add_argument('--version', action='version', version='%(prog)s ver 0.02')
+        parser.add_argument("identifier", help='identifier')
+        parser.add_argument('-e', '--execute', \
+                            action='store',\
+                            nargs='?',\
+                            const=None,\
+                            default="", \
+                            type=str,\
+                            choices=None, \
+                            help='execute the given file upon',\
+                            metavar ="file_to_run")
+        parser.add_argument('-c', '--command', \
+                            action='store_true',\
+                            default=False, \
+                            help='initialize a command shell')
+
+        args = parser.parse_args()
+        args_dict = vars(args)
+
+        return args_dict
+
