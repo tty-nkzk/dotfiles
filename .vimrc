@@ -68,6 +68,7 @@ set novisualbell
 
 " デフォルト不可視文字は美しくないのでUnicodeで綺麗に
 set listchars=tab:»-,trail:-,extends:»,precedes:«,nbsp:%,eol:↲
+" set listchars=eol:~,tab:>.,trail:~,extends:>,precedes:<,space:_
 
 " 入力モード中に素早くjjと入力した場合はESCとみなす
 inoremap jj <Esc>
