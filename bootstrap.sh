@@ -2,80 +2,140 @@
 
 # based on: http://pastebin.com/RjmDapEv
 
-HOME=/home/vagrant
-
+# USER=$SUDO_USER
+USER=zaki
+HOME=/home/$USER
 cd $HOME
-pwd
-mkdir -p local/bin
+
+mkdir -p $HOME/git $HOME/local/{bin,src,etc}
+
+# 
+echo grub-common hold | dpkg --set-selections
+echo grub-pc hold | dpkg --set-selections
+echo grub-pc-bin hold | dpkg --set-selections
+echo grub2-common hold | dpkg --set-selections
+
+echo keyboard-configuration hold | dpkg --set-selections
+# echo "set grub-pc/install_devices /dev/sda" | debconf-communicate
 
 # ■common
-sudo apt-get update && sudo apt upgrade -y
-sudo apt-get install -y vim tmux gdb gdbserver socat binutils nasm python git autoconf libtool make || \
-        (echo "[!] apt-get install failed"; exit)
+sed -i.bak -e "s%http://[^ ]\+%http://ftp.jaist.ac.jp/pub/Linux/ubuntu/%g" /etc/apt/sources.list
+# sed -i.bak -e "s%http://[^ ]\+%http://ftp.tsukuba.wide.ad.jp/Linux/ubuntu/%g" /etc/apt/sources.list
+apt-get update && apt upgrade -y
+# apt-get update 
+apt-get install -y vim tmux gdb gdbserver socat binutils manpages-ja manpages-dev manpages-ja-dev nasm python python-pip git autoconf libtool make libc6-dbg || \
+    (echo "[!] apt-get install failed at common"; exit)
+
 
 # To use x86 binary at x86_64 enviroment.
-sudo apt-get install -y gcc-multilib lib32z1 lib32ncurses5 lib32bz2-1.0
-sudo apt-get install -y libc6:i386
+apt-get install -y gcc-multilib lib32z1 lib32ncurses5 libbz2-1.0:i386 libc6:i386 || \
+    (echo "[!] apt-get install failed at x86"; exit)
 
+
+
+# ■dotfiles
+cd $HOME
+git clone https://github.com/tty-nkzk/dotfiles.git $HOME/git/dotfiles
+ln -s git/dotfiles/.tmux.conf .tmux.conf
+ln -s git/dotfiles/.vimrc .vimrc
+cd $HOME/git/dotfiles
+git remote set-url origin git@github.com:tty-nkzk/dotfiles.git
+git config --local push.default simple
+git config --local user.email tty.nkzk@gmail.com
+git config --local user.name tty-nkzk
+ 
 # ■peda
 cd $HOME
-git clone https://github.com/longld/peda.git $HOME/peda
-echo source $HOME/peda/peda.py >> $HOME/.gdbinit
+git clone https://github.com/longld/peda.git $HOME/git/peda
+echo source $HOME/git/peda/peda.py >> $HOME/.gdbinit
  
 # ■rp++
 cd $HOME
 wget -q https://github.com/downloads/0vercl0k/rp/rp-lin-x64
-chmod +x rp-lin-x64 && mv rp-lin-x64 local/bin
+chmod +x rp-lin-x64 && mv rp-lin-x64 $HOME/local/bin
 
-# ■dotfiles
+
 cd $HOME
-git clone https://github.com/tty-nkzk/dotfiles.git 
-ln -s dotfiles/.tmux.conf .tmux.conf
-ln -s dotfiles/.vimrc .vimrc
+echo "" >> .profile
+echo "# set PATH so it includes my private bin directories" >> .profile
+echo 'export PATH="$HOME/local/bin:$PATH"' >> .profile
 
+# for pwntools
+apt-get install -y python2.7 python-pip python-dev git libssl-dev libffi-dev build-essential pandoc|| \
+    (echo "[!] apt-get install failed at pwntools"; exit)
 
-# ■checksec
+# pyenv
+# cd $HOME
+# apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev|| \
+#     (echo "[!] apt-get install failed at pyenv"; exit)
+# 
+# curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash
+# echo "" >> .profile
+# echo "# set PATH for pyenv" >> .profile
+# echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> .profile
+# echo 'eval "$(pyenv init -)"' >> .profile
+# echo 'eval "$(pyenv virtualenv-init -)"' >> .profile
+# 
+# echo 'pyenv install 2.7.17' >> pyenv_init.sh
+# echo 'pyenv install 3.8.1' >> pyenv_init.sh
+# echo 'pyenv global 2.7.17' >> pyenv_init.sh
+# echo 'pyenv virtualenv ctf' >> pyenv_init.sh
+# echo 'pyenv global ctf' >> pyenv_init.sh
+# 
+# echo '# https://github.com/aquynh/capstone/issues/413' >> pyenv_init.sh
+# echo 'pip install capstone==3.0.5rc2' >> pyenv_init.sh
+# 
+# echo '# ROPgadget' >> pyenv_init.sh
+# echo 'pip install ROPgadget' >> pyenv_init.sh
+# 
+# echo 'pip install pwntools' >> pyenv_init.sh
+# 
+# chmod +x pyenv_init.sh
+
+# keygen
+# ssh-keygen -t ed25519 -N "" -f $HOME/.ssh/id_ed25519
+
+# novim
 cd $HOME
-git clone https://github.com/slimm609/checksec.sh.git 
-cd local/bin
-ln -s $HOME/checksec.sh/checksec checksec
+echo "" >> .profile
+echo "# set alias" >> .profile
+echo "alias novim='vim --noplugin -u NONE'" >> .profile
 
-echo 'export PATH="/home/vagrant/local/bin:$PATH"' >> .bashrc
+# ~/.ssh/config
+# Host github.com
+#   Hostname ssh.github.com
+#   Port 443
+#   IdentityFile ~/.ssh/id_ed25519
+# Host bitbucket.com
+#   Hostname altssh.bitbucket.com
+#   Port 443
+#   IdentityFile ~/.ssh/id_ed25519
 
-
-# ■disas-seccomp-filter
+# tmux for 256 color
 cd $HOME
-git clone git://github.com/seccomp/libseccomp && cd libseccomp
-./autogen.sh && ./configure && make
-cp tools/scmp_bpf_disasm tools/scmp_sys_resolver /usr/local/bin
-wget -q https://raw.githubusercontent.com/akiym/akitools/master/disas-seccomp-filter
-chmod +x disas-seccomp-filter && mv disas-seccomp-filter /usr/local/bin
+echo "" >> .profile
+echo "alias tmux='tmux -2'" >> .profile
+
+# vim install
+chmod +x git/dotfiles/vim-install.sh
+./git/dotfiles/vim-install.sh
 
 
-# 以下，使うかどうかわからないけど取り敢えず
- 
-# ■libheap
-cd $HOME
-apt-get install -y libc6-dbg || \
-        (echo "[!] apt-get install failed"; exit)
-wget -q http://pastebin.com/raw/8Mx8A1zG -O libheap.py
-echo 'from .libheap import *' > __init__.py
-mkdir -p /usr/local/lib/python3.4/dist-packages/libheap/
-mv libheap.py __init__.py /usr/local/lib/python3.4/dist-packages/libheap/
-echo -e 'define heap\n  python from libheap import *\nend' >> $HOME/.gdbinit
- 
-# ■katana
-cd $HOME
-apt-get -y install libelf-dev libdwarf-dev libunwind8-dev libreadline-dev bison flex g++
-git clone git://git.savannah.nongnu.org/katana.git && cd katana
-ls /usr/bin/aclocal-1.15 || ln -s /usr/bin/aclocal-1.14 /usr/bin/aclocal-1.15
-ls /usr/bin/automake-1.15 || ln -s /usr/bin/automake-1.14 /usr/bin/automake-1.15
-sed -i '784,787d' src/patchwrite/patchwrite.c
-sed -i '783a\int res=dwarf_producer_init(flags,dwarfWriteSectionCallback,dwarfErrorHandler,NULL,&err);' src/patchwrite/patchwrite.c
-./configure && make
-sed -i 's/\($(AM_V_CCLD).*\)/\1 $(lebtest_LDFLAGS)/' tests/code/Makefile
-make && make install
+# 
+echo grub-common install | dpkg --set-selections
+echo grub-pc install | dpkg --set-selections
+echo grub-pc-bin install | dpkg --set-selections
+echo grub2-common install | dpkg --set-selections
 
-chown vagrant:vagrant -R $HOME
+chown $USER:$USER -R $HOME
 echo "[+] bootstrap.sh done!"
+echo "[+] please do folloing" 
+echo "[+] 1. pyenv_init.sh"
+echo "[+] 2. lang_setup.sh"
+echo "[+] 3. keygen"
+echo "[+] 4. ssh config and put your pubkey"
+echo "[+] 5. clone ctf"
+echo "git clone git@bitbucket.org:nakazakit/ctf.git"
+
+
 
